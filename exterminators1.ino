@@ -54,3 +54,49 @@ void setup()
   Serial.println();
   Serial.println(); 
   Serial.print("Connecting to ");
+   Serial.println(WLAN_SSID); 
+ 
+  WiFi.begin(WLAN_SSID, WLAN_PASS); 
+  while (WiFi.status() != WL_CONNECTED) 
+  {  
+    delay(500);   
+    Serial.print(".");  
+    } 
+    Serial.println(); 
+ 
+  Serial.println("WiFi connected"); 
+  Serial.println("IP address: "); 
+  Serial.println(WiFi.localIP());   
+ 
+  // Setup MQTT subscription for onoff feed. 
+  mqtt.subscribe(&Light1); 
+  mqtt.subscribe(&Light3);  
+  mqtt.subscribe(&Light2);
+  mqtt.subscribe(&Fan); 
+
+ 
+ 
+} 
+ uint32_t x=0;
+void loop()
+{
+  MQTT_connect();    
+ 
+  Adafruit_MQTT_Subscribe *subscription;   
+  while ((subscription = mqtt.readSubscription(20000))) 
+  {     
+    
+    if (subscription == &Light1) 
+    {       
+      Serial.print(F("Got: "));     
+      Serial.println((char *)Light1.lastread);   
+      int Light1_State = atoi((char *)Light1.lastread);  
+      digitalWrite(Relay1, Light1_State);           
+      }   
+      if (subscription == &Light2) 
+      {    
+        Serial.print(F("Got: "));       
+        Serial.println((char *)Light2.lastread);    
+        int Light2_State = atoi((char *)Light2.lastread);  
+        digitalWrite(Relay2, Light2_State);     
+        }     
