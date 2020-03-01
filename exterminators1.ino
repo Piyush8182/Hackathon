@@ -72,7 +72,7 @@ void setup()
   mqtt.subscribe(&Light1); 
   mqtt.subscribe(&Light3);  
   mqtt.subscribe(&Light2);
-  mqtt.subscribe(&Fan); 
+  mqtt.subscribe(&light4); 
 
  
  
@@ -99,4 +99,50 @@ void loop()
         Serial.println((char *)Light2.lastread);    
         int Light2_State = atoi((char *)Light2.lastread);  
         digitalWrite(Relay2, Light2_State);     
-        }     
+        } 
+        if (subscription == &Light3) 
+        {     
+          Serial.print(F("Got: "));  
+          Serial.println((char *)Light3.lastread);    
+          int Light3_State = atoi((char *)Light3.lastread);    
+          digitalWrite(Relay3, Light3_State);    
+          } 
+             if (subscription == &Fan) {
+                Serial.print(F("Got: "));
+                Serial.println((char *)Fan.lastread); 
+               int Fan_State = atoi((char *)Fan.lastread);
+                digitalWrite(Relay4, Fan_State);
+                
+              } 
+  }
+ 
+   } 
+ 
+void MQTT_connect()
+{
+  int8_t ret; 
+ 
+
+ 
+ 
+  // Stop if already connected. 
+  if (mqtt.connected())
+  {    
+    return;  
+    } 
+ 
+  Serial.print("Connecting to MQTT... "); 
+ 
+  uint8_t retries = 3;    
+  while ((ret = mqtt.connect()) != 0)
+  { // connect will return 0 for connected     
+    Serial.println(mqtt.connectErrorString(ret)); 
+    Serial.println("Retrying MQTT connection in 5 seconds..."); 
+    mqtt.disconnect();
+    delay(5000);  // wait 5 seconds   
+    retries--; 
+    if (retries == 0)
+    {       // basically die and wait for WDT to reset me     
+      while (1);  
+      }   }   Serial.println("MQTT Connected!");   
+  }    
